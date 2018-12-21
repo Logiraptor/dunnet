@@ -3,23 +3,20 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/pkg/profile"
 	"io"
 	"os"
 	"os/exec"
-	"time"
 )
 
 type dunnet struct {
-	cmd *exec.Cmd
+	cmd  *exec.Cmd
+	output io.Reader
+	input io.Writer
+	dead bool
 }
 
-func startDunnet(output io.Writer, input io.Reader) *dunnet {
+func startDunnet() *dunnet {
 	command := exec.Command("emacs", "-batch", "-l", "dunnet")
-	d := &dunnet{
-		cmd: command,
-	}
-
 	out, err := command.StdoutPipe()
 	if err != nil {
 		panic(err)
@@ -28,15 +25,21 @@ func startDunnet(output io.Writer, input io.Reader) *dunnet {
 	if err != nil {
 		panic(err)
 	}
+
+	d := &dunnet{
+		cmd: command,
+		output: out,
+		input: in,
+	}
+
 	err = command.Start()
 	if err != nil {
 		panic(err)
 	}
 
-	go io.Copy(output, out)
 	go func() {
-		defer d.cmd.Wait()
-		io.Copy(in, input)
+		d.cmd.Wait()
+		d.dead = true
 	}()
 
 	return d
@@ -60,15 +63,13 @@ func runInteractive(c Controller) {
 }
 
 func main() {
-	go func() {
-		start := profile.Start(profile.CPUProfile)
-		time.Sleep(15 * time.Second)
-		start.Stop()
-	}()
+	//go func() {
+	//	start := profile.Start(profile.CPUProfile)
+	//	time.Sleep(15 * time.Second)
+	//	start.Stop()
+	//}()
 
-	controller := NewExplorer(NewStacker(NewRewinder(func() Controller {
-		return NewController()
-	})))
+	controller := NewExplorer(NewStacker(NewController))
 
 	runInteractive(controller)
 }

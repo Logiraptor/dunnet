@@ -1,40 +1,59 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+)
 
 type stacker struct {
-	r     *rewinder
-	stack []int
+	controller *controller
+	stackLen   int
+	cons       func() *controller
 }
 
-func NewStacker(r *rewinder) *stacker {
-	return &stacker{r: r}
+func NewStacker(cons func() *controller) *stacker {
+	return &stacker{cons: cons}
 }
 
 func (s *stacker) Start() string {
-	return s.r.Start()
+	s.controller = s.cons()
+	return s.controller.Start()
 }
 
 func (s *stacker) Send(msg string) string {
 	if msg == "push" {
-		s.stack = append(s.stack, 0)
-		return "starting new stack frame\n>"
+		return s.push()
 	} else if msg == "pop" {
-		if len(s.stack) == 0 {
-			return "nothing to pop\n>"
-		}
-		lastFrame := s.stack[len(s.stack)-1]
-		s.stack = s.stack[:len(s.stack)-1]
-		s.r.Send(fmt.Sprintf("rewind %d", lastFrame))
-		return fmt.Sprintf("popped %d commands\n>", lastFrame)
+		return s.pop()
 	} else {
-		if len(s.stack) > 0 {
-			s.stack[len(s.stack)-1]++
+		if s.controller.d.dead {
+			return "<DEAD>\n>"
 		}
-		return s.r.Send(msg)
+		return s.controller.Send(msg)
 	}
 }
 
+func (s *stacker) pop() string {
+	if s.controller.d.dead {
+		s.Close()
+		s.Start()
+	}
+
+	if s.stackLen == 0 {
+		return "nothing to pop\n>"
+	}
+	s.stackLen--
+	stackName := fmt.Sprintf("restore dunnet/stack-%d", s.stackLen)
+	s.controller.Send(stackName)
+	return stackName + "\n>"
+}
+
+func (s *stacker) push() string {
+	stackName := fmt.Sprintf("save dunnet/stack-%d", s.stackLen)
+	s.Send(stackName)
+	s.stackLen++
+	return stackName + "\n>"
+}
+
 func (s *stacker) Close() {
-	s.r.Close()
+	s.controller.Close()
 }

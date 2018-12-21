@@ -25,6 +25,10 @@ type edge struct {
 	to        location
 }
 
+func (e edge) String() string {
+	return fmt.Sprintf("%s %s %s.", e.from, e.direction, e.to)
+}
+
 type explorer struct {
 	stacker *stacker
 	paths   []edge
@@ -59,54 +63,59 @@ func (e *explorer) explore() string {
 
 	output := new(bytes.Buffer)
 
+	for loc := range e.visited {
+		fmt.Fprintln(output,"Visited", loc.name)
+	}
 	fmt.Fprintln(output, "Found", len(e.paths), "edges")
 	for _, e := range e.paths {
-		fmt.Fprintf(output, "From %6q to %6q via %q\n", e.from, e.to, e.direction)
+		fmt.Fprintf(output, "From %q to %q via %q\n", e.from, e.to, e.direction)
 	}
-	fmt.Fprintln(output, "\n>")
+	fmt.Fprint(output, "\n>")
 
 	return output.String()
 }
 
 func (e *explorer) tryDirections() {
-	fmt.Println(e.visited)
 
-	e.stacker.Send("push")
+	e.Send("push")
 	currentLocation := e.getLocation()
 	e.markVisited(currentLocation)
 
-	fmt.Println("visited", currentLocation.name)
-
 	edges := e.findEdges()
-
-	fmt.Println("found", len(edges), "edges", edges)
 
 	for _, ed := range edges {
 		if !e.isVisited(ed.to) {
-			e.stacker.Send("push")
+			e.Send("push")
 
 			e.paths = append(e.paths, ed)
-			e.stacker.Send(ed.direction)
+			e.Send(ed.direction)
 			e.tryDirections()
 
-			e.stacker.Send("pop")
+			e.Send("pop")
 		}
 	}
-	e.stacker.Send("pop")
+	e.Send("pop")
 }
 
 func (e *explorer) getLocation() location {
-	return parseLocation(e.stacker.Send("l"))
+	return parseLocation(e.Send("l"))
 }
 
 func (e *explorer) findEdges() []edge {
 	var edges []edge
 	for _, dir := range directions {
-		e.stacker.Send("push")
-		startingPosition := e.getLocation()
 
-		e.stacker.Send(dir)
+		e.Send("push")
+
+		startingPosition := e.getLocation()
+		e.Send(dir)
 		endingPosition := e.getLocation()
+
+		e.Send("pop")
+
+		if startingPosition == endingPosition {
+			continue
+		}
 
 		ed := edge{
 			from:      startingPosition,
@@ -114,14 +123,7 @@ func (e *explorer) findEdges() []edge {
 			to:        endingPosition,
 		}
 
-		if ed.from != ed.to {
-			edges = append(edges, ed)
-			fmt.Println("non-loop", dir)
-		} else {
-			fmt.Println("loop", dir)
-		}
-
-		e.stacker.Send("pop")
+		edges = append(edges, ed)
 	}
 
 	return edges
@@ -138,8 +140,14 @@ func (e *explorer) isVisited(l location) bool {
 
 func parseLocation(lookOutput string) location {
 	firstNewline := strings.Index(lookOutput, "\n")
+	if firstNewline == -1 {
+		return location{
+			name:     lookOutput,
+			fullText: "",
+		}
+	}
 	return location{
 		name:     lookOutput[:firstNewline],
-		fullText: lookOutput,
+		fullText: lookOutput[firstNewline+1:],
 	}
 }
