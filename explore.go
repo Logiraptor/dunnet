@@ -3,6 +3,8 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"io/ioutil"
+	"os/exec"
 	"strings"
 )
 
@@ -64,13 +66,27 @@ func (e *explorer) explore() string {
 	output := new(bytes.Buffer)
 
 	for loc := range e.visited {
-		fmt.Fprintln(output,"Visited", loc.name)
+		fmt.Fprintln(output, "Visited", loc.name)
 	}
 	fmt.Fprintln(output, "Found", len(e.paths), "edges")
+
+	outFile, err := ioutil.TempFile("dunnet", "*.dot")
+	if err != nil {
+		panic(err)
+	}
+	defer outFile.Close()
+
+	fmt.Fprint(outFile, "digraph {\n")
 	for _, e := range e.paths {
 		fmt.Fprintf(output, "From %q to %q via %q\n", e.from, e.to, e.direction)
+		fmt.Fprintf(outFile, "\t%q -> %q [label=%q];\n", e.from, e.to, e.direction)
 	}
+	fmt.Fprint(outFile, "}\n")
+
+	fmt.Fprintf(output, "dot file generated at: %s\n", "./dunnet/map.png")
 	fmt.Fprint(output, "\n>")
+
+	exec.Command("dot", "-Tpng", outFile.Name(), "-o", "dunnet/map.png").Run()
 
 	return output.String()
 }
@@ -84,10 +100,10 @@ func (e *explorer) tryDirections() {
 	edges := e.findEdges()
 
 	for _, ed := range edges {
+		e.paths = append(e.paths, ed)
 		if !e.isVisited(ed.to) {
 			e.Send("push")
 
-			e.paths = append(e.paths, ed)
 			e.Send(ed.direction)
 			e.tryDirections()
 

@@ -52,8 +52,6 @@ func (c *controller) Send(msg string) string {
 	if err != nil {
 		panic(err)
 	}
-	// Sleeping here is necessary, because saving doesn't happen fast enough.
-	time.Sleep(time.Millisecond)
 	return c.nextOutput()
 }
 

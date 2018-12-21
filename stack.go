@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"time"
 )
 
 type stacker struct {
@@ -33,6 +34,9 @@ func (s *stacker) Send(msg string) string {
 }
 
 func (s *stacker) pop() string {
+	// Sleeping here is necessary, because saving doesn't happen fast enough.
+	time.Sleep(time.Millisecond * 10)
+
 	if s.controller.d.dead {
 		s.Close()
 		s.Start()
