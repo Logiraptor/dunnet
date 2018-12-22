@@ -1,11 +1,8 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"io"
-	"regexp"
-	"time"
 )
 
 type Controller interface {
@@ -16,34 +13,19 @@ type Controller interface {
 
 type controller struct {
 	d     *dunnet
-	read  *bufio.Scanner
+	read  *promptScanner
 	write io.Writer
 }
 
 func NewController() *controller {
 	d := startDunnet()
-	reader := bufio.NewScanner(d.output)
-
-	promptRegexp := regexp.MustCompile(`(>|\$|login:|[pP]assword:|ftp>)`)
-
-	reader.Split(func(data []byte, atEOF bool) (advance int, token []byte, err error) {
-		match := promptRegexp.FindIndex(data)
-		if match != nil {
-			i := match[1]
-			return i, data[:i], nil
-		}
-		if atEOF {
-			return len(data), data, nil
-		}
-
-		return 0, nil, nil
-	})
+	reader := newScanner(d.output)
 
 	return &controller{d: d, read: reader, write: d.input}
 }
 
 func (c *controller) Start() string {
-	return c.nextOutput()
+	return c.read.NextOutput()
 }
 
 func (c *controller) Close() {
@@ -55,27 +37,5 @@ func (c *controller) Send(msg string) string {
 	if err != nil {
 		panic(err)
 	}
-	return c.nextOutput()
-}
-
-func (c *controller) nextOutput() string {
-	out := make(chan string)
-	go func() {
-		if !c.read.Scan() {
-			panic("EOF")
-		}
-
-		if err := c.read.Err(); err != nil {
-			panic(err)
-		}
-
-		out <- c.read.Text()
-	}()
-
-	select {
-	case result := <-out:
-		return result
-	case <-time.After(time.Second):
-		return "ERROR: could not scan response after 1 second"
-	}
+	return c.read.NextOutput()
 }
