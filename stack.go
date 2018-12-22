@@ -34,7 +34,7 @@ func (s *stacker) Send(msg string) string {
 }
 
 func (s *stacker) pop() string {
-	// Sleeping here is necessary, because saving doesn't happen fast enough.
+	// Sleeping here is necessary, because saving doesn't always happen fast enough.
 	time.Sleep(time.Millisecond * 10)
 
 	if s.controller.d.dead {

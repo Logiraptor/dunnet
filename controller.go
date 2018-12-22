@@ -2,9 +2,9 @@ package main
 
 import (
 	"bufio"
-	"bytes"
 	"fmt"
 	"io"
+	"regexp"
 	"time"
 )
 
@@ -24,10 +24,13 @@ func NewController() *controller {
 	d := startDunnet()
 	reader := bufio.NewScanner(d.output)
 
+	promptRegexp := regexp.MustCompile(`(>|\$|login:|[pP]assword:|ftp>)`)
+
 	reader.Split(func(data []byte, atEOF bool) (advance int, token []byte, err error) {
-		i := bytes.IndexByte(data, '>')
-		if i != -1 {
-			return i + 1, data[:i+1], nil
+		match := promptRegexp.FindIndex(data)
+		if match != nil {
+			i := match[1]
+			return i, data[:i], nil
 		}
 		if atEOF {
 			return len(data), data, nil
@@ -73,6 +76,6 @@ func (c *controller) nextOutput() string {
 	case result := <-out:
 		return result
 	case <-time.After(time.Second):
-		return "dead"
+		return "ERROR: could not scan response after 1 second"
 	}
 }

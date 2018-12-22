@@ -3,8 +3,10 @@ package main
 import (
 	"bytes"
 	"fmt"
-	"io/ioutil"
+	"log"
+	"os"
 	"os/exec"
+	"path/filepath"
 	"strings"
 )
 
@@ -70,23 +72,38 @@ func (e *explorer) explore() string {
 	}
 	fmt.Fprintln(output, "Found", len(e.paths), "edges")
 
-	outFile, err := ioutil.TempFile("dunnet", "*.dot")
+	dotFile, err := os.Create("dunnet/map.dot")
 	if err != nil {
 		panic(err)
 	}
-	defer outFile.Close()
+	defer dotFile.Close()
 
-	fmt.Fprint(outFile, "digraph {\n")
+	fmt.Fprint(dotFile, "digraph {\n")
+
+	for loc := range e.visited {
+		fmt.Fprintf(dotFile, "%q [tooltip=%q];\n", loc.name, loc.fullText)
+	}
+
 	for _, e := range e.paths {
 		fmt.Fprintf(output, "From %q to %q via %q\n", e.from, e.to, e.direction)
-		fmt.Fprintf(outFile, "\t%q -> %q [label=%q];\n", e.from, e.to, e.direction)
+		fmt.Fprintf(dotFile, "\t%q -> %q [label=%q];\n", e.from.name, e.to.name, e.direction)
 	}
-	fmt.Fprint(outFile, "}\n")
+	fmt.Fprint(dotFile, "}\n")
 
-	fmt.Fprintf(output, "dot file generated at: %s\n", "./dunnet/map.png")
+	cwd, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
+	svgPath := filepath.Join(cwd, "dunnet/map.svg")
+
+	fmt.Fprintf(output, "dot file generated at: file:%s\n", svgPath)
 	fmt.Fprint(output, "\n>")
 
-	exec.Command("dot", "-Tpng", outFile.Name(), "-o", "dunnet/map.png").Run()
+	stderr, err := exec.Command("dot", "-Tsvg", dotFile.Name(), "-o", svgPath).CombinedOutput()
+	if err != nil {
+		log.Println(string(stderr))
+		panic(err)
+	}
 
 	return output.String()
 }
