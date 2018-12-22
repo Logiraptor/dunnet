@@ -21,7 +21,7 @@ func newScanner(reader io.Reader) *promptScanner {
 	return promptScanner
 }
 
-var promptRegexp = regexp.MustCompile(`(>|\$|login:|[pP]assword:|ftp>|Username:)`)
+var promptRegexp = regexp.MustCompile(`(>|\$|login:|[pP]assword:|ftp>|Username:|Enter it here:)`)
 
 func (s *promptScanner) scan(data []byte, atEOF bool) (advance int, token []byte, err error) {
 	s.lastData = data

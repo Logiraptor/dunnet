@@ -34,9 +34,13 @@ func (e edge) String() string {
 }
 
 type explorer struct {
-	stacker *stacker
+	stacker Controller
 	paths   []edge
 	visited map[location]struct{}
+}
+
+func (e *explorer) IsDead() bool {
+	return e.stacker.IsDead()
 }
 
 func (e *explorer) Start() string {
@@ -54,7 +58,7 @@ func (e *explorer) Close() {
 	e.stacker.Close()
 }
 
-func NewExplorer(stacker *stacker) *explorer {
+func NewExplorer(stacker Controller) *explorer {
 	return &explorer{
 		stacker: stacker,
 		visited: make(map[location]struct{}),
@@ -119,6 +123,7 @@ func (e *explorer) tryDirections() {
 	for _, ed := range edges {
 		e.paths = append(e.paths, ed)
 		if !e.isVisited(ed.to) {
+			e.markVisited(ed.to)
 			e.Send("push")
 
 			e.Send(ed.direction)

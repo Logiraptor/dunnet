@@ -9,10 +9,10 @@ import (
 )
 
 type dunnet struct {
-	cmd  *exec.Cmd
+	cmd    *exec.Cmd
 	output io.Reader
-	input io.Writer
-	dead bool
+	input  io.Writer
+	dead   bool
 }
 
 func startDunnet() *dunnet {
@@ -27,9 +27,9 @@ func startDunnet() *dunnet {
 	}
 
 	d := &dunnet{
-		cmd: command,
+		cmd:    command,
 		output: out,
-		input: in,
+		input:  in,
 	}
 
 	err = command.Start()
@@ -69,7 +69,9 @@ func main() {
 	//	start.Stop()
 	//}()
 
-	controller := NewExplorer(NewStacker(NewController))
+	controller := NewExplorer(NewReplay(NewStacker(func() Controller {
+		return NewController()
+	})))
 
 	runInteractive(controller)
 }

@@ -9,12 +9,17 @@ type Controller interface {
 	Start() string
 	Send(string) string
 	Close()
+	IsDead() bool
 }
 
 type controller struct {
 	d     *dunnet
 	read  *promptScanner
 	write io.Writer
+}
+
+func (c *controller) IsDead() bool {
+	return c.d.dead
 }
 
 func NewController() *controller {

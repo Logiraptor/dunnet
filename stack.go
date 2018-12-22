@@ -6,12 +6,16 @@ import (
 )
 
 type stacker struct {
-	controller *controller
+	controller Controller
 	stackLen   int
-	cons       func() *controller
+	cons       func() Controller
 }
 
-func NewStacker(cons func() *controller) *stacker {
+func (s *stacker) IsDead() bool {
+	return s.controller.IsDead()
+}
+
+func NewStacker(cons func() Controller) *stacker {
 	return &stacker{cons: cons}
 }
 
@@ -26,7 +30,7 @@ func (s *stacker) Send(msg string) string {
 	} else if msg == "pop" {
 		return s.pop()
 	} else {
-		if s.controller.d.dead {
+		if s.controller.IsDead() {
 			return "<DEAD>\n>"
 		}
 		return s.controller.Send(msg)
@@ -37,7 +41,7 @@ func (s *stacker) pop() string {
 	// Sleeping here is necessary, because saving doesn't always happen fast enough.
 	time.Sleep(time.Millisecond * 10)
 
-	if s.controller.d.dead {
+	if s.controller.IsDead() {
 		s.Close()
 		s.Start()
 	}
