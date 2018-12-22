@@ -2,6 +2,8 @@ package main
 
 import (
 	"bytes"
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
 	"log"
 	"os"
@@ -21,6 +23,11 @@ type location struct {
 
 func (l location) String() string {
 	return l.name
+}
+
+func (l location) Id() string {
+	sum := md5.Sum([]byte(l.name + l.fullText))
+	return hex.EncodeToString(sum[:])
 }
 
 type edge struct {
@@ -85,12 +92,12 @@ func (e *explorer) explore() string {
 	fmt.Fprint(dotFile, "digraph {\n")
 
 	for loc := range e.visited {
-		fmt.Fprintf(dotFile, "%q [tooltip=%q];\n", loc.name, loc.fullText)
+		fmt.Fprintf(dotFile, "%q [label=%q, tooltip=%q];\n", loc.Id(), loc.name, loc.fullText)
 	}
 
 	for _, e := range e.paths {
 		fmt.Fprintf(output, "From %q to %q via %q\n", e.from, e.to, e.direction)
-		fmt.Fprintf(dotFile, "\t%q -> %q [label=%q];\n", e.from.name, e.to.name, e.direction)
+		fmt.Fprintf(dotFile, "\t%q -> %q [label=%q];\n", e.from.Id(), e.to.Id(), e.direction)
 	}
 	fmt.Fprint(dotFile, "}\n")
 
