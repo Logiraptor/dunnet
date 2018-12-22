@@ -1,0 +1,58 @@
+take shovel
+e
+e
+dig
+take cpu
+se
+take food
+se
+feed bear
+take key
+n
+s
+w
+se
+sw
+take bracelet
+ne
+l
+nw
+nw
+nw
+ne
+ne
+in
+w
+insert cpu into vax
+l
+type
+toukmond
+robert
+ls
+uncompress paper.o.Z
+ls
+ftp gamma
+anonymous
+password
+binary
+
+send lamp.o
+send shovel.o
+send bracelet.o
+send paper.o
+send key.o
+send paper.o
+
+quit
+ls
+
+
+
+ssh gamma
+worms
+take lamp
+take shovel
+take bracelet
+take paper
+take key
+l

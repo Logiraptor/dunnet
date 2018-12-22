@@ -1,0 +1,26 @@
+take shovel
+e
+e
+dig
+take cpu
+se
+take food
+se
+feed bear
+take key
+n
+s
+w
+se
+sw
+take bracelet
+ne
+l
+nw
+nw
+nw
+ne
+ne
+in
+w
+insert cpu into vax
