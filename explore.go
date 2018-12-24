@@ -74,6 +74,7 @@ func NewExplorer(stacker Controller) *explorer {
 
 func (e *explorer) explore() string {
 	e.visited = make(map[location]struct{})
+	e.paths = nil
 	e.tryDirections()
 
 	output := new(bytes.Buffer)
@@ -83,7 +84,7 @@ func (e *explorer) explore() string {
 	}
 	fmt.Fprintln(output, "Found", len(e.paths), "edges")
 
-	dotFile, err := os.Create("dunnet/map.dot")
+	dotFile, err := os.Create("generated/map.dot")
 	if err != nil {
 		panic(err)
 	}
@@ -105,7 +106,7 @@ func (e *explorer) explore() string {
 	if err != nil {
 		panic(err)
 	}
-	svgPath := filepath.Join(cwd, "dunnet/map.svg")
+	svgPath := filepath.Join(cwd, "generated/map.svg")
 
 	fmt.Fprintf(output, "dot file generated at: file:%s\n", svgPath)
 	fmt.Fprint(output, "\n>")

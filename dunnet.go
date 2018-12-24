@@ -69,9 +69,9 @@ func main() {
 	//	start.Stop()
 	//}()
 
-	controller := NewExplorer(NewReplay(NewStacker(func() Controller {
+	controller := NewExplorer(NewReplay(NewComboCracker(NewStacker(func() Controller {
 		return NewController()
-	})))
+	}))))
 
 	runInteractive(controller)
 }

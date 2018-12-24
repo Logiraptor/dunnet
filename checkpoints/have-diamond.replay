@@ -48,7 +48,7 @@ ls
 
 
 
-ssh gamma
+rlogin gamma
 worms
 take lamp
 take shovel
@@ -98,12 +98,12 @@ drop disk
 l
 i
 l
-i
 e
 turn dial clockwise
 turn dial clockwise
 turn dial clockwise
+turn dial counterclockwise
+turn dial counterclockwise
+turn dial counterclockwise
 w
 take disk
-l
-i

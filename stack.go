@@ -50,13 +50,13 @@ func (s *stacker) pop() string {
 		return "nothing to pop\n>"
 	}
 	s.stackLen--
-	stackName := fmt.Sprintf("restore dunnet/stack-%d", s.stackLen)
+	stackName := fmt.Sprintf("restore generated/stack-%d", s.stackLen)
 	s.controller.Send(stackName)
 	return stackName + "\n>"
 }
 
 func (s *stacker) push() string {
-	stackName := fmt.Sprintf("save dunnet/stack-%d", s.stackLen)
+	stackName := fmt.Sprintf("save generated/stack-%d", s.stackLen)
 	s.Send(stackName)
 	s.stackLen++
 	return stackName + "\n>"

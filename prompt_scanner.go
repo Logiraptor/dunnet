@@ -21,7 +21,7 @@ func newScanner(reader io.Reader) *promptScanner {
 	return promptScanner
 }
 
-var promptRegexp = regexp.MustCompile(`(>|\$|login:|[pP]assword:|ftp>|Username:|Enter it here:)`)
+var promptRegexp = regexp.MustCompile(`(>|\$|login:|[pP]assword:|ftp>|Username:|Enter it here:|Enter new time:|A>)`)
 
 func (s *promptScanner) scan(data []byte, atEOF bool) (advance int, token []byte, err error) {
 	s.lastData = data
@@ -54,7 +54,7 @@ func (s *promptScanner) NextOutput() string {
 	select {
 	case result := <-out:
 		return result
-	case <-time.After(time.Second):
+	case <-time.After(time.Second * 5):
 		log.Printf(`
 I can't figure out where the prompt is in this data:
 

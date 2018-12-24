@@ -15,7 +15,6 @@ se
 sw
 take bracelet
 ne
-l
 nw
 nw
 nw
@@ -24,7 +23,6 @@ ne
 in
 w
 insert cpu into vax
-l
 type
 toukmond
 robert
@@ -55,19 +53,14 @@ take shovel
 take bracelet
 take paper
 take key
-l
-l
 e
 n
 e
 d
-i
 drop shovel
 drop bracelet
 drop paper
 drop key
-l
-i
 u
 take life preserver
 d
@@ -81,7 +74,6 @@ take bracelet
 take paper
 take key
 take life preserver
-l
 nw
 u
 take statuette
@@ -95,5 +87,97 @@ s
 e
 w
 drop disk
-l
-i
+e
+turn dial clockwise
+turn dial clockwise
+turn dial clockwise
+turn dial counterclockwise
+turn dial counterclockwise
+turn dial counterclockwise
+w
+take disk
+e
+m
+w
+n
+e
+d
+nw
+d
+se
+d
+se
+u
+se
+d
+nw
+nw
+s
+s
+s
+s
+put diamond in chute
+put bracelet in chute
+s
+take gold
+e
+hit wall with shovel
+e
+n
+w
+123
+s
+s
+d
+l urinal
+n
+sleep
+d
+sw
+e
+u
+dig boulder
+take platinum
+score
+d
+w
+sw
+dig
+ne
+w
+d
+e
+take towel
+d
+n
+n
+d
+s
+s
+s
+s
+d
+s
+put disk in pc
+reset
+12:09:32
+dir
+crack combo
+exit
+n
+n
+n
+n
+n
+u
+insert key into slit
+score
+u
+u
+ne
+ne
+take axe
+d
+n
+w
+enter combo
