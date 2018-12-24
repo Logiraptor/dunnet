@@ -55,8 +55,11 @@ func (e *explorer) Start() string {
 }
 
 func (e *explorer) Send(msg string) string {
-	if msg == "explore" {
+	switch  {
+	case msg == "explore":
 		return e.explore()
+	case strings.HasPrefix(msg, "navigate"):
+		return e.navigate(msg)
 	}
 	return e.stacker.Send(msg)
 }

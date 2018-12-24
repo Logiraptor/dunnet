@@ -6,6 +6,8 @@ import (
 	"io"
 	"os"
 	"os/exec"
+	"strings"
+	"errors"
 )
 
 type dunnet struct {
@@ -60,6 +62,14 @@ func runInteractive(c Controller) {
 	}
 
 	c.Close()
+}
+
+func extractArg(msg string) (string, error) {
+	parts := strings.SplitN(msg, " ", 2)
+	if len(parts) != 2 {
+		return "", errors.New("Syntax: (record|replay) FILENAME\n>")
+	}
+	return parts[1], nil
 }
 
 func main() {

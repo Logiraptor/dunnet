@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	"errors"
 	"fmt"
 	"os"
 	"strings"
@@ -39,16 +38,8 @@ func (r *replay) Close() {
 	r.inner.Close()
 }
 
-func parseFilename(msg string) (string, error) {
-	parts := strings.SplitN(msg, " ", 2)
-	if len(parts) != 2 {
-		return "", errors.New("Syntax: (record|replay) FILENAME\n>")
-	}
-	return parts[1], nil
-}
-
 func (r *replay) saveFile(msg string) string {
-	fileName, err := parseFilename(msg)
+	fileName, err := extractArg(msg)
 	if err != nil {
 		return err.Error()
 	}
@@ -66,7 +57,7 @@ func (r *replay) saveFile(msg string) string {
 }
 
 func (r *replay) loadFile(msg string) string {
-	fileName, err := parseFilename(msg)
+	fileName, err := extractArg(msg)
 	if err != nil {
 		return err.Error()
 	}
